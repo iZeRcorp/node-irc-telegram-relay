@@ -4,6 +4,8 @@ var https = require('https');
 var request = require('request');
 var imgur = require('imgur');
 var fs = require('fs');
+var oldupdateid = 0;
+var lastmsgtime = new Date().getTime();
 
 var config = JSON.parse(fs.readFileSync('./config.json'));
 config.connected = false;
@@ -93,12 +95,14 @@ function fetchNewMessages()
 				updates = updates.result;
 				for(i in updates)
 				{
+					
 					if(updates[i].message)
 					{
+						if(updates[i].update_id > oldupdateid)
 						(function(curMessage) {
 							if(curMessage.chat.id == config.telegram_chatid && !curMessage.photo && !curMessage.location)
 							{
-								bot.say(config.channelToRelay, curMessage.from.first_name +': ' + curMessage.text);
+									bot.say(config.channelToRelay, curMessage.from.first_name +': ' + curMessage.text);						
 							}
 
 							if(curMessage.location) {
@@ -128,7 +132,16 @@ function fetchNewMessages()
 								});
 
 							}
-						})(updates[i].message);			
+							oldupdateid = updates[i].update_id;
+							lastmsgtime = new Date().getTime();
+						})(updates[i].message);	
+						else
+						if(	updates[i].update_id < oldupdateid)
+						{
+							var currenttime = new Date().getTime();
+							if((currenttime - lastmsgtime) > 24*7*1000);
+								oldupdateid = 0;							
+						}							
 					}
 
 					config.last_offset = updates[i].update_id;

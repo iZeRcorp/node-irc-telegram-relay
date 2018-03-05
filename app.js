@@ -139,7 +139,7 @@ function fetchNewMessages()
 						if(	updates[i].update_id < oldupdateid)
 						{
 							var currenttime = new Date().getTime();
-							if((currenttime - lastmsgtime) > 60*24*7*1000);
+							if((currenttime - lastmsgtime) > 60*60*24*7*1000);
 								oldupdateid = 0;							
 						}							
 					}
